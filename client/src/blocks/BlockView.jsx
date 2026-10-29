@@ -69,7 +69,7 @@ export function BlockView({ block, code, interactive = false }) {
                     target="_blank"
                     rel="noreferrer"
                     title={meta?.label}
-                    className="flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-xl hover:bg-brand-light"
+                    className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-xl shadow-sm transition-all hover:-translate-y-0.5 hover:bg-brand-light hover:shadow-md"
                   >
                     {meta?.icon || "🔗"}
                   </a>
@@ -125,14 +125,14 @@ function ActionButton({ p, interactive }) {
   }
   const cls =
     p.style === "outline"
-      ? "border border-brand text-brand hover:bg-brand-light"
-      : "bg-brand text-white hover:bg-brand-dark";
+      ? "border-2 border-brand text-brand hover:bg-brand-light"
+      : "bg-brand text-white shadow-lg shadow-brand/25 hover:bg-brand-dark";
   return (
     <a
       href={interactive ? href() : undefined}
       target={p.actionType === "link" ? "_blank" : undefined}
       rel="noreferrer"
-      className={`block rounded-xl px-4 py-3 text-center font-semibold ${cls}`}
+      className={`block rounded-xl px-4 py-3 text-center font-semibold transition-transform hover:-translate-y-0.5 active:translate-y-0 ${cls}`}
     >
       {p.label || "Tap here"}
     </a>
@@ -145,7 +145,7 @@ function LinkRow({ href, interactive, children }) {
       href={interactive ? href : undefined}
       target="_blank"
       rel="noreferrer"
-      className="block rounded-xl border border-gray-200 bg-white px-4 py-3 text-center font-medium text-brand hover:bg-brand-light"
+      className="block rounded-xl border border-gray-200 bg-white px-4 py-3 text-center font-medium text-brand shadow-sm transition-all hover:-translate-y-0.5 hover:border-brand hover:shadow-md"
     >
       {children}
     </a>

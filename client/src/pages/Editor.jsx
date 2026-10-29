@@ -275,8 +275,11 @@ function EditorHeader({ sticker, dirty }) {
 
 function PhoneFrame({ children }) {
   return (
-    <div className="mx-auto w-full max-w-[320px] rounded-[2rem] border-8 border-gray-800 bg-white shadow-xl">
-      <div className="max-h-[560px] overflow-y-auto rounded-[1.4rem] p-4">{children}</div>
+    <div className="mx-auto w-full max-w-[320px] rounded-[2rem] border-8 border-gray-800 bg-gray-800 shadow-xl">
+      {/* Mirror the real page's gradient + white card so the preview is true. */}
+      <div className="max-h-[560px] overflow-y-auto rounded-[1.4rem] bg-gradient-to-b from-brand-light via-white to-white p-3">
+        <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">{children}</div>
+      </div>
     </div>
   );
 }

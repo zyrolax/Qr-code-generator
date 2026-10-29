@@ -58,25 +58,33 @@ function OwnerPage({ code, data }) {
   const blocks = page?.blocks || [];
 
   return (
-    <main className="mx-auto min-h-screen max-w-md px-4 py-8">
-      {status === "lost" && (
-        <div className="mb-4 rounded-xl bg-red-600 px-4 py-3 text-center font-semibold text-white">
-          🔴 This item is reported lost
+    // Soft branded gradient backdrop so the page feels designed, not plain.
+    <div className="min-h-screen bg-gradient-to-b from-brand-light via-white to-white">
+      <main className="mx-auto max-w-md px-4 py-8">
+        {status === "lost" && (
+          <div className="mb-4 animate-pulse rounded-xl bg-red-600 px-4 py-3 text-center font-semibold text-white shadow-lg shadow-red-200">
+            🔴 This item is reported lost
+          </div>
+        )}
+
+        {/* The page content sits on a clean white card with a soft shadow. */}
+        <div className="rounded-3xl border border-gray-100 bg-white p-6 shadow-xl shadow-gray-200/60">
+          {blocks.length > 0 ? (
+            <BlockList blocks={blocks} code={code} interactive />
+          ) : (
+            <LegacyPage code={code} page={page} template={template} />
+          )}
         </div>
-      )}
 
-      {/* Block-based pages render their blocks in order. */}
-      {blocks.length > 0 ? (
-        <BlockList blocks={blocks} code={code} interactive />
-      ) : (
-        <LegacyPage code={code} page={page} template={template} />
-      )}
-
-      <p className="mt-8 text-center text-xs text-gray-400">
-        Powered by <Link to="/" className="text-brand">Requesto</Link> · the owner’s
-        contact is never shown
-      </p>
-    </main>
+        <p className="mt-6 text-center text-xs text-gray-400">
+          Powered by{" "}
+          <Link to="/" className="font-medium text-brand">
+            Requesto
+          </Link>{" "}
+          · the owner’s contact is never shown
+        </p>
+      </main>
+    </div>
   );
 }
 
