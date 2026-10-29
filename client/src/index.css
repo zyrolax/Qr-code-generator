@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Light theme by default. */
+html {
+  background: #ffffff;
+  color: #1a1a1a;
+}
