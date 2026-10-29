@@ -1,0 +1,21 @@
+# Isolated MongoDB for the LIVE TEST deployment of Requesto.
+#
+# - Uses a non-default host port (27018) so it can't clash with any existing
+#   MongoDB or other service on the VPS.
+# - Bound to 127.0.0.1 ONLY, so the database is never reachable from the
+#   public internet — only the Node app on the same box can connect.
+# - Its own named volume + container name, separate from everything else.
+#
+# Start:  docker compose -f deploy/docker-compose.test.yml up -d
+services:
+  mongo-test:
+    image: mongo:7
+    container_name: requesto-test-mongo
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:27018:27017"
+    volumes:
+      - requesto_test_mongo:/data/db
+
+volumes:
+  requesto_test_mongo:
