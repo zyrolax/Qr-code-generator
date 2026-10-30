@@ -20,4 +20,4 @@ echo "==> Building frontend"
 echo "==> Restarting API (PM2)"
 pm2 restart requesto-test-api
 
-echo "==> Done. Live at https://test.requesto.in"
+echo "==> Done. Live at https://test1.requesto.in"
