@@ -7,3 +7,10 @@ html {
   background: #ffffff;
   color: #1a1a1a;
 }
+
+/* Placeholder text for inline-editable headings/paragraphs in the editor. */
+[contenteditable][data-placeholder]:empty::before {
+  content: attr(data-placeholder);
+  color: var(--muted, #9ca3af);
+  pointer-events: none;
+}

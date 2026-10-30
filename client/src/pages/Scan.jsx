@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { api } from "../api.js";
 import { Button, Card } from "../components/ui.jsx";
-import { BlockView, BlockList, FinderForm } from "../blocks/BlockView.jsx";
+import { BlockView, BlockList, FinderForm, PageShell, ContentCard } from "../blocks/BlockView.jsx";
 
 // The public page a finder lands on after scanning. Chrome-free (no Nav).
 // Renders differently per sticker status. NEVER shows owner contact.
@@ -58,33 +58,33 @@ function OwnerPage({ code, data }) {
   const blocks = page?.blocks || [];
 
   return (
-    // Soft branded gradient backdrop so the page feels designed, not plain.
-    <div className="min-h-screen bg-gradient-to-b from-brand-light via-white to-white">
-      <main className="mx-auto max-w-md px-4 py-8">
+    // The themed page shell paints the background + content card from the
+    // owner's chosen theme (page.style), matching the editor canvas exactly.
+    <PageShell style={page?.style} className="min-h-screen px-4 py-8">
+      <div className="mx-auto max-w-md">
         {status === "lost" && (
           <div className="mb-4 animate-pulse rounded-xl bg-red-600 px-4 py-3 text-center font-semibold text-white shadow-lg shadow-red-200">
             🔴 This item is reported lost
           </div>
         )}
 
-        {/* The page content sits on a clean white card with a soft shadow. */}
-        <div className="rounded-3xl border border-gray-100 bg-white p-6 shadow-xl shadow-gray-200/60">
+        <ContentCard>
           {blocks.length > 0 ? (
             <BlockList blocks={blocks} code={code} interactive />
           ) : (
             <LegacyPage code={code} page={page} template={template} />
           )}
-        </div>
+        </ContentCard>
 
-        <p className="mt-6 text-center text-xs text-gray-400">
+        <p className="mt-6 text-center text-xs" style={{ color: "var(--muted)" }}>
           Powered by{" "}
-          <Link to="/" className="font-medium text-brand">
+          <Link to="/" className="font-medium" style={{ color: "var(--accent)" }}>
             Requesto
           </Link>{" "}
           · the owner’s contact is never shown
         </p>
-      </main>
-    </div>
+      </div>
+    </PageShell>
   );
 }
 
