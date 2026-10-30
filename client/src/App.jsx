@@ -1,6 +1,5 @@
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { useAuth } from "./lib/auth.jsx";
-import Nav from "./components/Nav.jsx";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { PublicLayout, AuthedLayout, RequireAdmin } from "./components/layouts.jsx";
 
 import Landing from "./pages/Landing.jsx";
 import Scan from "./pages/Scan.jsx";
@@ -13,84 +12,34 @@ import Inbox from "./pages/Inbox.jsx";
 import AdminBatch from "./pages/admin/Batch.jsx";
 import AdminStickers from "./pages/admin/Stickers.jsx";
 
-// Gate for owner-only pages. While we're still checking the cookie we show
-// nothing; once known, redirect to login if not authenticated.
-function RequireAuth({ children, adminOnly = false }) {
-  const { user, loading } = useAuth();
-  const location = useLocation();
-
-  if (loading) return <div className="p-8 text-center text-gray-500">Loading…</div>;
-  if (!user) return <Navigate to="/login" state={{ from: location.pathname }} replace />;
-  if (adminOnly && user.role !== "admin") return <Navigate to="/dashboard" replace />;
-  return children;
-}
-
 export default function App() {
-  const location = useLocation();
-  // The public scan page is intentionally chrome-free (it's what a finder sees).
-  const hideNav = location.pathname.startsWith("/q/");
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      {!hideNav && <Nav />}
-      <Routes>
+    <Routes>
+      {/* Public scan page — intentionally chrome-free (what a finder sees). */}
+      <Route path="/q/:code" element={<Scan />} />
+
+      {/* Public pages share a simple top nav. */}
+      <Route element={<PublicLayout />}>
         <Route path="/" element={<Landing />} />
-        <Route path="/q/:code" element={<Scan />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+      </Route>
 
-        <Route
-          path="/claim"
-          element={
-            <RequireAuth>
-              <Claim />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/dashboard"
-          element={
-            <RequireAuth>
-              <Dashboard />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/dashboard/stickers/:id/edit"
-          element={
-            <RequireAuth>
-              <Editor />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/dashboard/stickers/:id/messages"
-          element={
-            <RequireAuth>
-              <Inbox />
-            </RequireAuth>
-          }
-        />
+      {/* Authenticated app — sidebar shell + login guard. */}
+      <Route element={<AuthedLayout />}>
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/claim" element={<Claim />} />
+        <Route path="/dashboard/stickers/:id/edit" element={<Editor />} />
+        <Route path="/dashboard/stickers/:id/messages" element={<Inbox />} />
 
-        <Route
-          path="/admin/batch"
-          element={
-            <RequireAuth adminOnly>
-              <AdminBatch />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/admin/stickers"
-          element={
-            <RequireAuth adminOnly>
-              <AdminStickers />
-            </RequireAuth>
-          }
-        />
+        {/* Admin-only area. */}
+        <Route element={<RequireAdmin />}>
+          <Route path="/admin/batch" element={<AdminBatch />} />
+          <Route path="/admin/stickers" element={<AdminStickers />} />
+        </Route>
+      </Route>
 
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </div>
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }

@@ -38,4 +38,4 @@ git push
 echo "==> Deploying on $SSH_TARGET"
 ssh "$SSH_TARGET" "cd '$REMOTE_PATH' && bash deploy/update.sh"
 
-echo "✅ Live: https://test.requesto.in"
+echo "✅ Live: https://test1.requesto.in"

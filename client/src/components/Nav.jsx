@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/auth.jsx";
 import { Button } from "./ui.jsx";
+import Logo from "./Logo.jsx";
 
 // Top navigation. Shows different links depending on login + role.
 export default function Nav() {
@@ -15,8 +16,8 @@ export default function Nav() {
   return (
     <header className="sticky top-0 z-10 border-b border-gray-200 bg-white/90 backdrop-blur">
       <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-2 px-4 py-3">
-        <Link to="/" className="text-lg font-bold text-brand">
-          Requesto
+        <Link to="/">
+          <Logo />
         </Link>
         <nav className="flex flex-wrap items-center gap-2">
           {user ? (
