@@ -5,7 +5,7 @@ import { validate } from "../middleware/validate.js";
 import { requireAuth, requireAdmin } from "../middleware/auth.js";
 import { createStickerBatch } from "../lib/stickers.js";
 import { publicUrlFor } from "../lib/codes.js";
-import { writeStickerSheet, writeClaimCards } from "../lib/pdf.js";
+import { writeStickerSheet, writeClaimCards, writeLabelSheet } from "../lib/pdf.js";
 
 const router = Router();
 router.use(requireAuth, requireAdmin);
@@ -59,6 +59,45 @@ router.post("/stickers/batch/cards.pdf", validate(cardsSchema), async (req, res,
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", 'attachment; filename="claim-cards.pdf"');
     await writeClaimCards(res, req.body.items);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// --- Printable combined labels (PDF) ---------------------------------------
+// The customisable print sheet: brand + "scan me" + QR on top, tear-off claim
+// stub below. Needs the plaintext claim codes, so the client posts the batch
+// result back (same reason as the cards endpoint). Admin controls size/design.
+const printSchema = z.object({
+  items: z
+    .array(
+      z.object({
+        code: z.string().min(1),
+        claimCode: z.string().min(1),
+        url: z.string().min(1),
+      })
+    )
+    .min(1)
+    .max(500),
+  options: z
+    .object({
+      size: z.enum(["small", "medium", "large"]).default("medium"),
+      topText: z.string().max(40).default("FOUND ME? SCAN ME"),
+      showLogo: z.boolean().default(true),
+      showClaim: z.boolean().default(true),
+      accent: z
+        .string()
+        .regex(/^#[0-9a-fA-F]{6}$/)
+        .default("#5B4BF5"),
+    })
+    .default({}),
+});
+
+router.post("/stickers/batch/print.pdf", validate(printSchema), async (req, res, next) => {
+  try {
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", 'attachment; filename="requesto-labels.pdf"');
+    await writeLabelSheet(res, req.body.items, req.body.options);
   } catch (err) {
     next(err);
   }
