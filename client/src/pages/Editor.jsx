@@ -89,7 +89,15 @@ export default function Editor() {
   }
 
   const reorder = (nextBlocks) => set({ blocks: nextBlocks, style });
-  const changeStyle = (nextStyle) => set({ blocks, style: nextStyle });
+
+  function move(blockId, dir) {
+    const i = blocks.findIndex((b) => b.id === blockId);
+    const j = i + dir;
+    if (i < 0 || j < 0 || j >= blocks.length) return;
+    const next = [...blocks];
+    [next[i], next[j]] = [next[j], next[i]];
+    set({ blocks: next, style });
+  }
 
   function applyTemplate(tpl) {
     set({ blocks: tpl.build(), style: { ...style, theme: tpl.theme } });
@@ -137,7 +145,7 @@ export default function Editor() {
       />
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Canvas — click empty space to deselect (shows page settings). */}
+        {/* Canvas — click empty space to deselect. */}
         <div
           className="flex-1 overflow-y-auto px-4 py-8"
           onMouseDown={(e) => {
@@ -156,64 +164,40 @@ export default function Editor() {
             onReorder={reorder}
             onChangeBlock={changeBlock}
             onEditImage={(bid) => { setSelectedId(bid); setEditingImageId(bid); }}
+            onMove={move}
+            onRemove={removeBlock}
             onAddFirst={() => setAdding(true)}
           />
         </div>
 
         {/* Desktop inspector */}
         <aside className="hidden w-80 shrink-0 overflow-y-auto border-l border-ink/10 bg-panel p-5 lg:block">
-          {selected && (
-            <button onClick={() => setSelectedId(null)} className="mb-3 text-xs text-ink/45 hover:text-ink">
-              ← Page settings
-            </button>
-          )}
           <Inspector
             block={selected}
             onChange={changeBlock}
             onEditImage={() => selected && setEditingImageId(selected.id)}
-            style={style}
-            onStyleChange={changeStyle}
           />
-          {selected && (
-            <button
-              onClick={() => removeBlock(selected.id)}
-              className="mt-6 w-full rounded-lg border border-red-200 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
-            >
-              Delete element
-            </button>
-          )}
         </aside>
       </div>
 
       {/* Mobile bottom toolbar */}
       <MobileBar
         onAdd={() => setAdding(true)}
-        onPage={() => { setSelectedId(null); setSheetOpen(true); }}
         onTemplates={() => setPicking(true)}
       />
 
-      {/* Mobile bottom sheet */}
-      {sheetOpen && (
+      {/* Mobile bottom sheet (element controls) */}
+      {sheetOpen && selected && (
         <div className="fixed inset-x-0 bottom-0 z-40 max-h-[70vh] overflow-y-auto rounded-t-2xl border-t border-ink/10 bg-panel p-5 shadow-2xl lg:hidden">
-          <div className="mb-3 flex items-center justify-between">
-            <div className="mx-auto h-1 w-10 rounded-full bg-ink/15" />
-            <button onClick={() => setSheetOpen(false)} className="absolute right-5 text-ink/40 hover:text-ink">✕</button>
+          <div className="relative mb-3 flex items-center justify-center">
+            <div className="h-1 w-10 rounded-full bg-ink/15" />
+            <button onClick={() => setSheetOpen(false)} className="absolute right-0 text-ink/40 hover:text-ink">✕</button>
           </div>
           <Inspector
             block={selected}
             onChange={changeBlock}
             onEditImage={() => selected && setEditingImageId(selected.id)}
-            style={style}
-            onStyleChange={changeStyle}
           />
-          {selected && (
-            <button
-              onClick={() => removeBlock(selected.id)}
-              className="mt-6 w-full rounded-lg border border-red-200 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
-            >
-              Delete element
-            </button>
-          )}
         </div>
       )}
 
@@ -321,11 +305,10 @@ function IconBtn({ className = "", children, ...props }) {
   );
 }
 
-function MobileBar({ onAdd, onPage, onTemplates }) {
+function MobileBar({ onAdd, onTemplates }) {
   return (
     <nav className="sticky bottom-0 z-20 flex items-center justify-around border-t border-ink/10 bg-panel/95 py-2 backdrop-blur lg:hidden">
       <MobileAction onClick={onAdd} icon="＋" label="Add" />
-      <MobileAction onClick={onPage} icon="◫" label="Page" />
       <MobileAction onClick={onTemplates} icon="▦" label="Templates" />
     </nav>
   );

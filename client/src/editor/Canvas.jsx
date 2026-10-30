@@ -8,7 +8,7 @@ import { SortableContext, useSortable, arrayMove, verticalListSortingStrategy } 
 import { CSS } from "@dnd-kit/utilities";
 import { BlockView, PageShell, ContentCard, headingClasses, textClasses } from "../blocks/BlockView.jsx";
 
-export function Canvas({ blocks, style, selectedId, status, onSelect, onReorder, onChangeBlock, onEditImage, onAddFirst }) {
+export function Canvas({ blocks, style, selectedId, status, onSelect, onReorder, onChangeBlock, onEditImage, onMove, onRemove, onAddFirst }) {
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
 
   function onDragEnd(e) {
@@ -45,14 +45,19 @@ export function Canvas({ blocks, style, selectedId, status, onSelect, onReorder,
               <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
                 <SortableContext items={blocks.map((b) => b.id)} strategy={verticalListSortingStrategy}>
                   <div className="space-y-2">
-                    {blocks.map((block) => (
+                    {blocks.map((block, i) => (
                       <SortableBlock
                         key={block.id}
                         block={block}
                         selected={block.id === selectedId}
+                        canUp={i > 0}
+                        canDown={i < blocks.length - 1}
                         onSelect={() => onSelect(block.id)}
                         onChange={onChangeBlock}
                         onEditImage={() => onEditImage(block.id)}
+                        onMoveUp={() => onMove(block.id, -1)}
+                        onMoveDown={() => onMove(block.id, 1)}
+                        onRemove={() => onRemove(block.id)}
                       />
                     ))}
                   </div>
@@ -67,7 +72,7 @@ export function Canvas({ blocks, style, selectedId, status, onSelect, onReorder,
   );
 }
 
-function SortableBlock({ block, selected, onSelect, onChange, onEditImage }) {
+function SortableBlock({ block, selected, canUp, canDown, onSelect, onChange, onEditImage, onMoveUp, onMoveDown, onRemove }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: block.id });
   const wrapStyle = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.6 : 1 };
   const editable = block.type === "heading" || block.type === "text";
@@ -81,17 +86,20 @@ function SortableBlock({ block, selected, onSelect, onChange, onEditImage }) {
         selected ? "outline outline-2 outline-offset-2 outline-clay" : "hover:outline hover:outline-1 hover:outline-offset-2 hover:outline-clay/40"
       }`}
     >
-      {/* Hover/selected toolbar */}
-      <div className={`absolute -top-2.5 right-1 z-10 flex items-center gap-1 transition ${selected ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
+      {/* Hover/selected toolbar: move up/down, drag, delete */}
+      <div className={`absolute -top-3.5 right-1 z-10 flex items-center gap-px rounded-lg bg-ink p-0.5 text-white shadow-md transition ${selected ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
+        <MiniBtn title="Move up" disabled={!canUp} onClick={onMoveUp}>▲</MiniBtn>
+        <MiniBtn title="Move down" disabled={!canDown} onClick={onMoveDown}>▼</MiniBtn>
         <button
           type="button"
           {...attributes}
           {...listeners}
           onMouseDown={(e) => e.stopPropagation()}
-          className="cursor-grab rounded-md bg-ink px-1.5 py-0.5 text-xs text-white active:cursor-grabbing"
+          className="cursor-grab rounded px-1.5 py-0.5 text-xs hover:bg-white/15 active:cursor-grabbing"
           title="Drag to reorder"
           aria-label="Drag to reorder"
         >⠿</button>
+        <MiniBtn title="Delete" onClick={onRemove} className="hover:!bg-red-500">🗑</MiniBtn>
       </div>
 
       <div className="p-1">
@@ -138,6 +146,23 @@ function InlineEditable({ block, onChange, onFocus }) {
       className={`${className} outline-none`}
       style={style}
     />
+  );
+}
+
+// A small button in the per-element canvas toolbar. Stops mousedown so it
+// doesn't start a drag or reselect while clicking.
+function MiniBtn({ children, onClick, disabled, title, className = "" }) {
+  return (
+    <button
+      type="button"
+      title={title}
+      disabled={disabled}
+      onMouseDown={(e) => e.stopPropagation()}
+      onClick={(e) => { e.stopPropagation(); onClick(); }}
+      className={`rounded px-1.5 py-0.5 text-[11px] leading-none transition hover:bg-white/15 disabled:opacity-30 ${className}`}
+    >
+      {children}
+    </button>
   );
 }
 

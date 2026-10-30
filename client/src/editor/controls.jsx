@@ -1,9 +1,6 @@
 // Small, restrained form controls for the editor's Inspector. Deliberately
 // understated: subtle borders, charcoal ink, one clay accent — no heavy
 // shadows or gradients.
-import { useState } from "react";
-import { SWATCHES } from "../blocks/styleTokens.js";
-
 // A labelled row around any control.
 export function Field({ label, hint, children }) {
   return (
@@ -35,47 +32,6 @@ export function Segmented({ value, onChange, options, className = "" }) {
           </button>
         );
       })}
-    </div>
-  );
-}
-
-// A row of colour swatches + an optional custom picker. Empty value = inherit
-// the theme colour, shown as a small "A" chip.
-export function ColorSwatches({ value, onChange, swatches = SWATCHES }) {
-  const [showPicker, setShowPicker] = useState(false);
-  return (
-    <div className="flex flex-wrap items-center gap-1.5">
-      {swatches.map((c) => {
-        const active = (value || "") === c;
-        const isInherit = c === "";
-        return (
-          <button
-            key={c || "inherit"}
-            type="button"
-            onClick={() => onChange(c)}
-            title={isInherit ? "Theme colour" : c}
-            className={`h-7 w-7 rounded-full border transition ${
-              active ? "ring-2 ring-ink ring-offset-1" : "border-ink/15"
-            } ${isInherit ? "grid place-items-center text-[11px] font-semibold text-ink/50" : ""}`}
-            style={isInherit ? { background: "#fff" } : { background: c }}
-          >
-            {isInherit ? "A" : ""}
-          </button>
-        );
-      })}
-      <label
-        className="grid h-7 w-7 cursor-pointer place-items-center rounded-full border border-dashed border-ink/25 text-ink/40 hover:text-ink"
-        title="Custom colour"
-        onClick={() => setShowPicker(true)}
-      >
-        +
-        <input
-          type="color"
-          className="sr-only"
-          value={value || "#000000"}
-          onChange={(e) => onChange(e.target.value)}
-        />
-      </label>
     </div>
   );
 }

@@ -1,16 +1,16 @@
 // The contextual editing panel. It shows ONLY the controls relevant to the
-// current selection — one element at a time — or page-wide settings when
-// nothing is selected. Edits flow up via onChange(nextProps) / onStyleChange.
+// current selection — one element at a time — and a gentle hint when nothing
+// is selected. Edits flow up via onChange(nextProps). Text is edited directly
+// on the canvas, so there are no text fields here for headings/paragraphs.
 import { SOCIAL_PLATFORMS, BLOCK_META } from "../blocks/registry.js";
 import {
   FONT_OPTIONS, WEIGHT_OPTIONS, HEADING_SIZE_OPTIONS, TEXT_SIZE_OPTIONS,
   ALIGN_OPTIONS, LEADING_OPTIONS, RADIUS_OPTIONS,
 } from "../blocks/styleTokens.js";
-import { THEMES } from "../blocks/themes.js";
-import { Field, Segmented, ColorSwatches, ToggleSwitch, TextInput, TextAreaInput, PanelButton } from "./controls.jsx";
+import { Field, Segmented, ToggleSwitch, TextInput, TextAreaInput, PanelButton } from "./controls.jsx";
 
-export function Inspector({ block, onChange, onEditImage, style, onStyleChange }) {
-  if (!block) return <PageSettings style={style} onStyleChange={onStyleChange} />;
+export function Inspector({ block, onChange, onEditImage }) {
+  if (!block) return <EmptyState />;
 
   const meta = BLOCK_META[block.type];
   return (
@@ -32,28 +32,22 @@ function BlockControls({ block, onChange, onEditImage }) {
     case "heading":
       return (
         <div className="space-y-4">
-          <Field label="Text">
-            <TextAreaInput rows={2} value={p.text} onChange={(e) => set({ text: e.target.value })} placeholder="Heading" />
-          </Field>
+          <p className="text-xs text-ink/45">Type directly on the page to edit this heading.</p>
           <Field label="Font"><Segmented value={p.font ?? ""} onChange={(font) => set({ font })} options={FONT_OPTIONS} /></Field>
           <Field label="Weight"><Segmented value={p.weight} onChange={(weight) => set({ weight })} options={WEIGHT_OPTIONS} /></Field>
           <Field label="Size"><Segmented value={p.size} onChange={(size) => set({ size })} options={HEADING_SIZE_OPTIONS} /></Field>
           <Field label="Alignment"><Segmented value={p.align} onChange={(align) => set({ align })} options={ALIGN_OPTIONS} /></Field>
-          <Field label="Colour"><ColorSwatches value={p.color} onChange={(color) => set({ color })} /></Field>
         </div>
       );
 
     case "text":
       return (
         <div className="space-y-4">
-          <Field label="Text">
-            <TextAreaInput rows={5} value={p.text} onChange={(e) => set({ text: e.target.value })} placeholder="Write something…" />
-          </Field>
+          <p className="text-xs text-ink/45">Type directly on the page to edit this text.</p>
           <Field label="Font"><Segmented value={p.font ?? ""} onChange={(font) => set({ font })} options={FONT_OPTIONS} /></Field>
           <Field label="Size"><Segmented value={p.size} onChange={(size) => set({ size })} options={TEXT_SIZE_OPTIONS} /></Field>
           <Field label="Alignment"><Segmented value={p.align} onChange={(align) => set({ align })} options={ALIGN_OPTIONS} /></Field>
           <Field label="Line spacing"><Segmented value={p.leading} onChange={(leading) => set({ leading })} options={LEADING_OPTIONS} /></Field>
-          <Field label="Colour"><ColorSwatches value={p.color} onChange={(color) => set({ color })} /></Field>
         </div>
       );
 
@@ -105,7 +99,6 @@ function BlockControls({ block, onChange, onEditImage }) {
           )}
           <Field label="Style"><Segmented value={p.style} onChange={(style) => set({ style })} options={[{ value: "primary", label: "Filled" }, { value: "outline", label: "Outline" }]} /></Field>
           <Field label="Alignment"><Segmented value={p.align} onChange={(align) => set({ align })} options={ALIGN_OPTIONS} /></Field>
-          <Field label="Button colour"><ColorSwatches value={p.color} onChange={(color) => set({ color })} /></Field>
           <ToggleSwitch value={p.fullWidth !== false} onChange={(v) => set({ fullWidth: v })} label="Full width" />
         </div>
       );
@@ -196,43 +189,13 @@ function BlockControls({ block, onChange, onEditImage }) {
   }
 }
 
-// --- page-wide settings (shown when nothing is selected) -------------------
-function PageSettings({ style = {}, onStyleChange }) {
-  const set = (patch) => onStyleChange({ ...style, ...patch });
+// Shown in the panel when nothing is selected.
+function EmptyState() {
   return (
-    <div>
-      <div className="mb-4 flex items-center gap-2 text-ink">
-        <span className="grid h-7 w-7 place-items-center rounded-md bg-ink/5 text-sm">◫</span>
-        <h3 className="font-semibold">Page style</h3>
-      </div>
-      <div className="space-y-5">
-        <Field label="Theme" hint="Switching keeps all your content">
-          <div className="grid grid-cols-5 gap-2">
-            {THEMES.map((t) => {
-              const active = (style.theme || "warm") === t.id;
-              return (
-                <button
-                  key={t.id} type="button" title={t.name} onClick={() => set({ theme: t.id })}
-                  className={`flex flex-col items-center gap-1 rounded-lg border p-1.5 transition ${active ? "border-ink" : "border-ink/10 hover:border-ink/30"}`}
-                >
-                  <span className="relative h-8 w-full overflow-hidden rounded" style={{ background: t.pageBg }}>
-                    <span className="absolute inset-x-1 bottom-1 top-2 rounded-sm" style={{ background: t.cardBg, border: `1px solid ${t.cardBorder}` }} />
-                    <span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full" style={{ background: t.accent }} />
-                  </span>
-                  <span className="text-[10px] text-ink/60">{t.name}</span>
-                </button>
-              );
-            })}
-          </div>
-        </Field>
-        <Field label="Base font"><Segmented value={style.font ?? ""} onChange={(font) => set({ font })} options={FONT_OPTIONS} /></Field>
-        <Field label="Background" hint="Override the theme background">
-          <ColorSwatches value={style.background} onChange={(background) => set({ background })} />
-        </Field>
-        <Field label="Accent" hint="Buttons, links and highlights">
-          <ColorSwatches value={style.accent} onChange={(accent) => set({ accent })} />
-        </Field>
-      </div>
+    <div className="flex flex-col items-center gap-2 py-16 text-center">
+      <span className="grid h-10 w-10 place-items-center rounded-full bg-ink/5 text-lg text-ink/40">☝</span>
+      <p className="text-sm font-medium text-ink/70">Nothing selected</p>
+      <p className="max-w-[12rem] text-xs text-ink/45">Tap an element on the page to edit it, or use <b>+ Add</b> to add something new.</p>
     </div>
   );
 }
