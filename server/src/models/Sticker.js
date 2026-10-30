@@ -35,6 +35,9 @@ const pageSchema = new mongoose.Schema(
     note: { type: String, default: "", trim: true }, // owner's note to the finder
     links: { type: [linkSchema], default: [] },
     blocks: { type: [blockSchema], default: [] },
+    // Page-level presentation (theme / background / typography). Flexible shape
+    // validated by zod (lib/blocks.js styleSchema) before saving.
+    style: { type: mongoose.Schema.Types.Mixed, default: {} },
   },
   { _id: false }
 );

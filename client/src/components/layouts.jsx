@@ -1,19 +1,8 @@
 import { useState } from "react";
 import { Outlet, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../lib/auth.jsx";
-import Nav from "./Nav.jsx";
 import Sidebar from "./Sidebar.jsx";
 import Logo from "./Logo.jsx";
-
-// Public pages (landing, login, signup): simple top nav + page content.
-export function PublicLayout() {
-  return (
-    <>
-      <Nav />
-      <Outlet />
-    </>
-  );
-}
 
 // Authenticated app shell: sidebar on desktop, a slide-in drawer on mobile
 // with a slim top bar to open it. Also enforces that the user is logged in.

@@ -8,6 +8,7 @@ import stickerRoutes from "./routes/sticker.routes.js";
 import messageRoutes from "./routes/message.routes.js";
 import publicRoutes from "./routes/public.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
+import uploadRoutes, { uploadsDir } from "./routes/upload.routes.js";
 import { notFound, errorHandler } from "./middleware/error.js";
 
 // Builds the Express app. Kept separate from index.js so tests can mount it
@@ -21,7 +22,9 @@ export function createApp() {
     app.set("trust proxy", 1);
   }
 
-  app.use(helmet());
+  // crossOriginResourcePolicy "cross-origin" lets uploaded images be embedded
+  // on the public page served from the same site (and keeps dev proxying happy).
+  app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
   app.use(express.json({ limit: "1mb" }));
   app.use(cookieParser());
 
@@ -39,6 +42,9 @@ export function createApp() {
   app.use("/api/stickers", stickerRoutes);
   app.use("/api/messages", messageRoutes);
   app.use("/api/admin", adminRoutes);
+  app.use("/api/uploads", uploadRoutes);
+  // Serve the stored upload files (owner-uploaded page images).
+  app.use("/api/uploads", express.static(uploadsDir, { maxAge: "7d", index: false }));
   // Public sticker endpoints live under /api/q/:code.
   app.use("/api/q", publicRoutes);
 

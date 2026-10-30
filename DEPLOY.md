@@ -162,6 +162,11 @@ docker compose -f deploy/docker-compose.test.yml down       # add -v to also del
 
 ## Notes / gotchas
 
+- **Image uploads:** page-editor images are stored on disk under
+  `server/uploads/` and served at `/api/uploads/...`. The Nginx `/api/` block
+  sets `client_max_body_size 5m` so uploads aren't rejected; the directory is
+  created automatically and is git-ignored (back it up if you want to keep
+  uploaded images across a fresh clone).
 - **Port 4010** is assumed free. If something uses it, change `PORT` in
   `server/.env` **and** `proxy_pass` in the Nginx file to match.
 - **Firewall:** you only need 80/443 open (already are, for your main site).

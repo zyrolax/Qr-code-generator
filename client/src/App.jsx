@@ -1,10 +1,8 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { PublicLayout, AuthedLayout, RequireAdmin } from "./components/layouts.jsx";
+import { AuthedLayout, RequireAdmin } from "./components/layouts.jsx";
 
-import Landing from "./pages/Landing.jsx";
+import Welcome from "./pages/Welcome.jsx";
 import Scan from "./pages/Scan.jsx";
-import Login from "./pages/Login.jsx";
-import Signup from "./pages/Signup.jsx";
 import Claim from "./pages/Claim.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import Editor from "./pages/Editor.jsx";
@@ -18,12 +16,10 @@ export default function App() {
       {/* Public scan page — intentionally chrome-free (what a finder sees). */}
       <Route path="/q/:code" element={<Scan />} />
 
-      {/* Public pages share a simple top nav. */}
-      <Route element={<PublicLayout />}>
-        <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-      </Route>
+      {/* Login-first entry: auth screen with the how-it-works slider. */}
+      <Route path="/" element={<Welcome mode="login" />} />
+      <Route path="/login" element={<Welcome mode="login" />} />
+      <Route path="/signup" element={<Welcome mode="signup" />} />
 
       {/* Authenticated app — sidebar shell + login guard. */}
       <Route element={<AuthedLayout />}>

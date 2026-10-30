@@ -7,7 +7,7 @@ import Message from "../models/Message.js";
 import { validate } from "../middleware/validate.js";
 import { requireAuth } from "../middleware/auth.js";
 import { normalizeClaimCode } from "../lib/codes.js";
-import { blocksSchema } from "../lib/blocks.js";
+import { blocksSchema, styleSchema } from "../lib/blocks.js";
 
 const router = Router();
 
@@ -163,6 +163,7 @@ const pageSchema = z.object({
     .max(20)
     .default([]),
   blocks: blocksSchema,
+  style: styleSchema,
 });
 
 router.put("/:id/page", validate(pageSchema), async (req, res, next) => {
@@ -170,9 +171,9 @@ router.put("/:id/page", validate(pageSchema), async (req, res, next) => {
     const sticker = await ownedSticker(req);
     if (!sticker) return res.status(404).json({ error: "Not found" });
 
-    const { template, title, description, imageUrl, note, links, blocks } = req.body;
+    const { template, title, description, imageUrl, note, links, blocks, style } = req.body;
     sticker.template = template;
-    sticker.page = { title, description, imageUrl, note, links, blocks };
+    sticker.page = { title, description, imageUrl, note, links, blocks, style };
     await sticker.save();
     res.json({ sticker });
   } catch (err) {

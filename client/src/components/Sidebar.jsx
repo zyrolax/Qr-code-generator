@@ -60,15 +60,6 @@ function SidebarContent({ onNavigate }) {
             </NavLink>
           </>
         )}
-
-        <a
-          href="/"
-          target="_blank"
-          rel="noreferrer"
-          className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-600 transition hover:bg-brand-light hover:text-brand"
-        >
-          <Icon d={icons.external} /> View public site
-        </a>
       </nav>
 
       {/* User + logout pinned to the bottom. */}
